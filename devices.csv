@@ -1,0 +1,9 @@
+device_name,update_time,link,Temp,RH,CO2,PM2.5,PM10,eTVOC,Noise
+QP310,9 minutes,https://qingpingiot.com/deviceDetail/6552C740E58E5E07A36C5745E6774311?group_id=undefined,31.8,55.6%,525,58,61,239,66
+QP309,24 minutes,https://qingpingiot.com/deviceDetail/9B74E89E8B1243DD8FA92D22F8661BAF?group_id=undefined,31,62.1%,631,52,52,239,64
+QP308,13 minutes,https://qingpingiot.com/deviceDetail/60896D497672CF0E6EE4BD626FFC4AB6?group_id=undefined,31.7,59.9%,618,44,44,239,65
+QP307,8 minutes,https://qingpingiot.com/deviceDetail/8C811D0DAC31075405FD197997380C92?group_id=undefined,30.9,64.6%,610,52,53,210,65
+QP306,4 minutes,https://qingpingiot.com/deviceDetail/B7AEE1FE0527E9232283A3708B7EA3E0?group_id=undefined,28,70.4%,521,45,46,239,62
+QP305,14 minutes,https://qingpingiot.com/deviceDetail/A9FE0B9CC55AC7FFF59410D06FA0E7E4?group_id=undefined,28.2,70.3%,524,38,39,239,53
+QP304,1 minute,https://qingpingiot.com/deviceDetail/049F8BCEAAD2DD7555FA7FD4489DB750?group_id=undefined,29.9,61.8%,612,52,52,239,69
+QP303,1 minute,https://qingpingiot.com/deviceDetail/1E7A6B58529809AFE1F04E5467B6C53C?group_id=undefined,30.7,59.5%,613,48,48,239,66
