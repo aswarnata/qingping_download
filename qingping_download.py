@@ -276,7 +276,8 @@ class AutoQingPing:
             except Exception as e:
                 self.log(f"❌ Failed to go to page {page_number}: {e}")
         time.sleep(15)  # Wait for the page to load
-        for filename in filenames:
+        for i in range (len(filenames)):
+            filename = filenames[len(filenames)-1-i]
             try:
                 # Wait for the specific filename element to appear and be clickable
                 target = wait.until(EC.element_to_be_clickable(
