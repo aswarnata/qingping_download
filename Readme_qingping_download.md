@@ -15,7 +15,7 @@ Make sure you have reliable internet connection
 
 2. **Navigate to the project directory**
    ```
-   cd ~/Documents/GitHub/qingping
+   cd ~/Documents/GitHub/qingping_download
    ```
 
 3. **Activate the virtual environment**
