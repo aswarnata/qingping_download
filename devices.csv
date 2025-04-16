@@ -1,9 +1,9 @@
 device_name,update_time,link,Temp,RH,CO2,PM2.5,PM10,eTVOC,Noise
-QP310,12 minutes,https://qingpingiot.com/deviceDetail/6552C740E58E5E07A36C5745E6774311?group_id=undefined,32.1,51.3%,804,36,36,43,58
-QP309,27 minutes,https://qingpingiot.com/deviceDetail/9B74E89E8B1243DD8FA92D22F8661BAF?group_id=undefined,31.2,57.6%,786,34,34,43,56
-QP308,11 minutes,https://qingpingiot.com/deviceDetail/60896D497672CF0E6EE4BD626FFC4AB6?group_id=undefined,31.8,55.2%,798,28,28,44,58
-QP307,17 minutes,https://qingpingiot.com/deviceDetail/8C811D0DAC31075405FD197997380C92?group_id=undefined,30.8,60.3%,787,28,30,44,55
-QP306,13 minutes,https://qingpingiot.com/deviceDetail/B7AEE1FE0527E9232283A3708B7EA3E0?group_id=undefined,28.3,63%,787,29,30,42,46
-QP305,3 minutes,https://qingpingiot.com/deviceDetail/A9FE0B9CC55AC7FFF59410D06FA0E7E4?group_id=undefined,27.7,65.2%,781,25,25,44,38
-QP304,1 minute,https://qingpingiot.com/deviceDetail/049F8BCEAAD2DD7555FA7FD4489DB750?group_id=undefined,29.9,57.2%,804,34,35,44,57
-QP303,Now,https://qingpingiot.com/deviceDetail/1E7A6B58529809AFE1F04E5467B6C53C?group_id=undefined,30.8,54.6%,809,30,30,45,56
+QP310,31 minutes,https://qingpingiot.com/deviceDetail/6552C740E58E5E07A36C5745E6774311?group_id=undefined,27.1,57.6%,2166,49,51,52,42
+QP309,31 minutes,https://qingpingiot.com/deviceDetail/9B74E89E8B1243DD8FA92D22F8661BAF?group_id=undefined,26.3,62.7%,2022,44,45,52,48
+QP308,3 minutes,https://qingpingiot.com/deviceDetail/60896D497672CF0E6EE4BD626FFC4AB6?group_id=undefined,26.8,61%,2165,38,38,52,49
+QP307,3 minutes,https://qingpingiot.com/deviceDetail/8C811D0DAC31075405FD197997380C92?group_id=undefined,26.5,64.4%,2068,41,43,52,44
+QP306,3 minutes,https://qingpingiot.com/deviceDetail/B7AEE1FE0527E9232283A3708B7EA3E0?group_id=undefined,26.7,63.6%,2165,39,39,52,50
+QP305,3 minutes,https://qingpingiot.com/deviceDetail/A9FE0B9CC55AC7FFF59410D06FA0E7E4?group_id=undefined,26.6,64.2%,2058,37,37,52,39
+QP304,1 minute,https://qingpingiot.com/deviceDetail/049F8BCEAAD2DD7555FA7FD4489DB750?group_id=undefined,25.9,62.5%,2128,44,45,52,47
+QP303,1 minute,https://qingpingiot.com/deviceDetail/1E7A6B58529809AFE1F04E5467B6C53C?group_id=undefined,26.8,60.3%,2219,40,41,52,47
