@@ -1,4 +1,4 @@
-                            self.log_message(f"✅ [{device_index}/{total_devices}] Device exported: {device_name}", "success")        self.progress_data = {}import tkinter as tk
+import tkinter as tk
 from tkinter import ttk, messagebox, StringVar, IntVar, BooleanVar
 import threading
 import time
@@ -267,7 +267,7 @@ class AutoQingPing:
                             self.log(f"⚠️ Error navigating to page {current_page}: {e}")
                             
                             # Try direct URL approach as a fallback
-                            driver.get(f"https://qingpingiot.com/devices?current={current_page}")
+                            driver.get(f"https://qingpingiot.com/welcome?current={current_page}")
                             time.sleep(5)
                             self.log(f"✓ Navigated to page {current_page} via direct URL")
                     
@@ -872,8 +872,7 @@ class QingPingGUI:
         
         self.automation = None
         self.running = False
-        # Create a mapping between devices and filenames
-        self.device_filename_map = {}
+        self.progress_data = {}
         
         # Create variables
         self.email_var = StringVar(value="")
@@ -1019,7 +1018,6 @@ class QingPingGUI:
         self.log_text.tag_configure("success", foreground="green")
         self.log_text.tag_configure("info", foreground="blue")
         self.log_text.tag_configure("warning", foreground="orange")
-        self.log_text.tag_configure("download", foreground="purple")
         
         # Make the log text read-only
         self.log_text.configure(state=tk.DISABLED)
@@ -1029,20 +1027,18 @@ class QingPingGUI:
         progress_frame.pack(fill=tk.BOTH, expand=True)
         
         # Create a treeview to display progress
-        columns = ("device", "status", "timestamp", "filename")
+        columns = ("device", "status", "timestamp")
         self.progress_tree = ttk.Treeview(progress_frame, columns=columns, show="headings")
         
         # Define headings
         self.progress_tree.heading("device", text="Device Name")
         self.progress_tree.heading("status", text="Status")
         self.progress_tree.heading("timestamp", text="Timestamp")
-        self.progress_tree.heading("filename", text="Export Filename")
         
         # Define columns
-        self.progress_tree.column("device", width=250)
-        self.progress_tree.column("status", width=100)
+        self.progress_tree.column("device", width=300)
+        self.progress_tree.column("status", width=150)
         self.progress_tree.column("timestamp", width=150)
-        self.progress_tree.column("filename", width=200)
         
         # Add scrollbar
         scrollbar = ttk.Scrollbar(progress_frame, orient="vertical", command=self.progress_tree.yview)
@@ -1055,7 +1051,7 @@ class QingPingGUI:
         self.stats_frame = ttk.LabelFrame(progress_frame, text="Statistics", padding=10)
         self.stats_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=10)
         
-        self.stats_var = StringVar(value="Total: 0 | Exported: 0 | Downloaded: 0 | Failed: 0 | Pending: 0")
+        self.stats_var = StringVar(value="Total: 0 | Completed: 0 | Failed: 0 | Pending: 0")
         ttk.Label(self.stats_frame, textvariable=self.stats_var, font=("Arial", 10, "bold")).pack()
         
     def setup_buttons(self):
@@ -1098,7 +1094,7 @@ class QingPingGUI:
         self.log_text.delete(1.0, tk.END)
         self.log_text.configure(state=tk.DISABLED)
         
-    def update_progress(self, device_name, status, filename=""):
+    def update_progress(self, device_name, status):
         """Update progress in the treeview"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
@@ -1106,67 +1102,35 @@ class QingPingGUI:
         existing_items = self.progress_tree.get_children()
         for item_id in existing_items:
             if self.progress_tree.item(item_id, "values")[0] == device_name:
-                # If updating to "Downloaded", keep the filename from the previous status
-                if status == "Downloaded" and not filename:
-                    filename = self.progress_tree.item(item_id, "values")[3]
                 # Update existing item
-                self.progress_tree.item(item_id, values=(device_name, status, timestamp, filename))
+                self.progress_tree.item(item_id, values=(device_name, status, timestamp))
                 break
         else:
             # Add new item
-            self.progress_tree.insert("", "end", values=(device_name, status, timestamp, filename))
+            self.progress_tree.insert("", "end", values=(device_name, status, timestamp))
         
-        # Apply color tags based on status
-        for item_id in self.progress_tree.get_children():
-            values = self.progress_tree.item(item_id, "values")
-            if values[0] == device_name:
-                if status == "Exported":
-                    self.progress_tree.item(item_id, tags=("exported",))
-                elif status == "Downloaded":
-                    self.progress_tree.item(item_id, tags=("downloaded",))
-                elif status == "Failed":
-                    self.progress_tree.item(item_id, tags=("failed",))
-                elif status == "Pending":
-                    self.progress_tree.item(item_id, tags=("pending",))
-        
-        # Configure the tags if not already done
-        try:
-            self.progress_tree.tag_configure("exported", background="#FFF9C4")  # Light yellow
-            self.progress_tree.tag_configure("downloaded", background="#C8E6C9")  # Light green
-            self.progress_tree.tag_configure("failed", background="#FFCDD2")  # Light red
-            self.progress_tree.tag_configure("pending", background="#E1F5FE")  # Light blue
-        except:
-            pass
-            
         # Update stats
         self.update_stats()
         
         # Store progress in dictionary for potential resume
-        self.progress_data[device_name] = {
-            "status": status, 
-            "timestamp": timestamp,
-            "filename": filename
-        }
+        self.progress_data[device_name] = {"status": status, "timestamp": timestamp}
         self.save_progress()
         
     def update_stats(self):
         """Update statistics in the progress tab"""
         total = len(self.progress_tree.get_children())
-        exported = 0
-        downloaded = 0
+        completed = 0
         failed = 0
         
         for item_id in self.progress_tree.get_children():
             status = self.progress_tree.item(item_id, "values")[1]
-            if status == "Exported":
-                exported += 1
-            elif status == "Downloaded":
-                downloaded += 1
+            if status == "Completed":
+                completed += 1
             elif status == "Failed":
                 failed += 1
         
-        pending = total - exported - downloaded - failed
-        self.stats_var.set(f"Total: {total} | Exported: {exported} | Downloaded: {downloaded} | Failed: {failed} | Pending: {pending}")
+        pending = total - completed - failed
+        self.stats_var.set(f"Total: {total} | Completed: {completed} | Failed: {failed} | Pending: {pending}")
         
     def validate_inputs(self):
         """Validate user inputs before starting automation"""
@@ -1321,23 +1285,20 @@ class QingPingGUI:
             
         # Check if there's progress to resume
         pending_devices = []
-        exported_devices = []
-        downloaded_devices = []
+        completed_devices = []
         
         for device_name, data in self.progress_data.items():
             if data["status"] == "Pending":
                 pending_devices.append(device_name)
-            elif data["status"] == "Exported":
-                exported_devices.append(device_name)
-            elif data["status"] == "Downloaded":
-                downloaded_devices.append(device_name)
+            elif data["status"] == "Completed":
+                completed_devices.append(device_name)
         
-        if not pending_devices and not exported_devices:
-            messagebox.showinfo("Info", "No pending or exported devices found to resume")
+        if not pending_devices:
+            messagebox.showinfo("Info", "No pending devices found to resume")
             return
             
-        self.log_message(f"🔄 Resuming automation with {len(pending_devices)} pending and {len(exported_devices)} exported devices", "info")
-        self.log_message(f"ℹ️ Already downloaded: {len(downloaded_devices)} devices", "info")
+        self.log_message(f"🔄 Resuming automation with {len(pending_devices)} pending devices", "info")
+        self.log_message(f"ℹ️ Already completed: {len(completed_devices)} devices", "info")
         
         # Update UI state
         self.running = True
@@ -1377,7 +1338,7 @@ class QingPingGUI:
         # Check if there are pending devices
         for item_id in self.progress_tree.get_children():
             status = self.progress_tree.item(item_id, "values")[1]
-            if status == "Pending" or status == "Exported":  # Allow resuming for both Pending and Exported
+            if status == "Pending":
                 self.resume_button.configure(state=tk.NORMAL)
                 break
         else:
@@ -1428,14 +1389,14 @@ class QingPingGUI:
                 devices_df.to_csv(csv_path, index=False)
                 self.log_message(f"💾 Saved {len(devices_df)} devices to {csv_path}", "success")
             
-            # Create a list of already processed devices if resuming
+            # Create a list of completed devices if resuming
             completed_devices = []
             if resume:
                 for device_name, data in self.progress_data.items():
-                    if data["status"] == "Downloaded" or data["status"] == "Exported":
+                    if data["status"] == "Completed":
                         completed_devices.append(device_name)
                 
-                self.log_message(f"🔄 Skipping {len(completed_devices)} already processed devices", "info")
+                self.log_message(f"🔄 Skipping {len(completed_devices)} already completed devices", "info")
             
             # Process devices in batches
             total_devices = len(devices_df)
@@ -1486,18 +1447,8 @@ class QingPingGUI:
                         success = self.automation.automate_date_selection(driver, device["link"], start_date, end_date)
                         
                         if success:
-                            # Update progress
-                            self.update_progress(device_name, "Exported")
-                            
-                            # Generate and store expected filename
-                            device_name_clean = device_name.replace(" ", "_").replace("/", "_").lower()
-                            filename_prefix = f"{device_name_clean}_{start_date.replace('/', '')}_{end_date.replace('/', '')}"
-                            expected_filename = f"{filename_prefix}.csv"
-                            
-                            # Store in our device-to-filename mapping
-                            self.device_filename_map[expected_filename] = device_name
-                            self.log_message(f"🔗 Associated expected file: {expected_filename}", "info")
-                            
+                            self.log_message(f"✅ [{device_index}/{total_devices}] Device processed: {device_name}", "success")
+                            self.update_progress(device_name, "Completed")
                             success_count += 1
                         else:
                             self.log_message(f"❌ [{device_index}/{total_devices}] Failed to process: {device_name}", "error")
@@ -1520,7 +1471,8 @@ class QingPingGUI:
                         self.log_message(f"⚠️ Error refreshing: {e}", "warning")
             
             if self.running:
-                self.log_message(f"📊 Device processing completed. {success_count} devices exported, {failure_count} failed", "success")
+                self.log_message("📊 Device processing completed", "success")
+                self.log_message(f"📈 Processing results: {success_count} successes, {failure_count} failures", "info")
                 
                 # Handle file downloads
                 try:
@@ -1530,10 +1482,8 @@ class QingPingGUI:
                     files_per_page = 100  # QingPing typically shows 100 files per page
                     file_pages = (processed_count + files_per_page - 1) // files_per_page
                     
-                    # Scrape files from each page
+                    # Get files for each page
                     all_files = []
-                    file_to_device_map = {}  # To keep track of which file belongs to which device
-                    
                     for page_num in range(1, file_pages + 1):
                         if not self.running:
                             break
@@ -1541,66 +1491,22 @@ class QingPingGUI:
                         self.log_message(f"📄 Scraping files from export page {page_num}/{file_pages}...", "info")
                         filenames = self.automation.scrape_filenames(driver, page_size=files_per_page, page_number=page_num)
                         
-                        # Match filenames to devices using our mapping
-                        for filename in filenames:
-                            # Check for exact match
-                            if filename in self.device_filename_map:
-                                device_name = self.device_filename_map[filename]
-                                file_to_device_map[filename] = device_name
-                                self.log_message(f"🔍 Matched file {filename} to device {device_name}", "info")
-                            else:
-                                # Try partial matching for cases where the server modified the filename format
-                                for expected_file, device in self.device_filename_map.items():
-                                    # Extract device name part from expected filename (before first underscore)
-                                    device_part = expected_file.split('_')[0]
-                                    if device_part in filename:
-                                        file_to_device_map[filename] = device
-                                        self.log_message(f"🔍 Partially matched file {filename} to device {device}", "info")
-                                        break
-                                else:
-                                    self.log_message(f"⚠️ Could not match file {filename} to any device", "warning")
-                        
                         if filenames:
                             all_files.extend(filenames)
                             self.log_message(f"✅ Found {len(filenames)} files on page {page_num}", "success")
                             
                             # Click files to download them
                             self.log_message(f"⬇️ Downloading {len(filenames)} files from page {page_num}...", "info")
+                            success = self.automation.click_files(driver, filenames, page_number=page_num)
                             
-                            # Track successful downloads
-                            for i, filename in enumerate(filenames):
-                                try:
-                                    self.log_message(f"🔍 Looking for file: {filename}", "info")
-                                    
-                                    # Try to click the file (using the automation.click_files method for a single file)
-                                    single_file_list = [filename]
-                                    success = self.automation.click_files(driver, single_file_list, page_number=page_num)
-                                    
-                                    if success:
-                                        self.log_message(f"⬇️ [{i+1}/{len(filenames)}] Downloaded: {filename}", "download")
-                                        
-                                        # Update the device status if we know which device this file belongs to
-                                        if filename in file_to_device_map:
-                                            device_name = file_to_device_map[filename]
-                                            self.update_progress(device_name, "Downloaded", filename)
-                                            self.log_message(f"✅ Updated status for {device_name} to Downloaded", "success")
-                                    else:
-                                        self.log_message(f"⚠️ Failed to download: {filename}", "warning")
-                                    
-                                    # Small delay between downloads
-                                    time.sleep(1)
-                                    
-                                except Exception as e:
-                                    self.log_message(f"❌ Error downloading file {filename}: {e}", "error")
-                            
+                            if success:
+                                self.log_message(f"✅ Downloaded files from page {page_num}", "success")
+                            else:
+                                self.log_message(f"⚠️ Some files from page {page_num} may not have downloaded", "warning")
                         else:
                             self.log_message(f"⚠️ No files found on page {page_num}", "warning")
                     
-                    # Summary of downloaded files
-                    downloaded_count = sum(1 for item_id in self.progress_tree.get_children() 
-                                          if self.progress_tree.item(item_id, "values")[1] == "Downloaded")
-                    
-                    self.log_message(f"📊 Download summary: {downloaded_count} files downloaded out of {len(all_files)} found", "success")
+                    self.log_message(f"📊 Total files found: {len(all_files)}", "success")
                     
                 except Exception as e:
                     self.log_message(f"❌ Error during file download: {e}", "error")

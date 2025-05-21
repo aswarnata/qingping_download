@@ -1,4 +1,4 @@
-                            self.log_message(f"✅ [{device_index}/{total_devices}] Device exported: {device_name}", "success")        self.progress_data = {}import tkinter as tk
+        self.progress_data = {}import tkinter as tk
 from tkinter import ttk, messagebox, StringVar, IntVar, BooleanVar
 import threading
 import time
